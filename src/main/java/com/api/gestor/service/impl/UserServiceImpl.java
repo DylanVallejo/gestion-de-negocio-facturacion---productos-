@@ -29,8 +29,8 @@ public class UserServiceImpl implements UserService {
             if(validateSignUpMap((requestMap))){
                 User user = userDAO.findByEmail(requestMap.get("email"));
                 if(Objects.isNull(user)){
-                    userDAO.save(getUserFromMap(requestMap));
-                    return FacturaUtils.getResponseEntity("Usuario registrado con exito", HttpStatus.CREATED);
+                    User userdb = userDAO.save(getUserFromMap(requestMap));
+                    return FacturaUtils.getResponseEntity("Usuario registrado con exito: " + userdb.getNombre(), HttpStatus.CREATED);
                 }else{
                     return FacturaUtils.getResponseEntity("El usuario con ese email ya existe", HttpStatus.BAD_REQUEST);
                 }
@@ -48,9 +48,9 @@ public class UserServiceImpl implements UserService {
     private boolean validateSignUpMap(Map<String, String> requestMap){
         if (
                 requestMap.containsKey("nombre")
-                && requestMap.containsKey("numeroDeContacto")
+                && requestMap.containsKey("numero_de_contacto")
                 && requestMap.containsKey("email")
-                && requestMap.containsKey("pasword")
+                && requestMap.containsKey("password")
         ){
             return true;
         }
@@ -60,9 +60,9 @@ public class UserServiceImpl implements UserService {
     private User getUserFromMap(Map<String, String> requestMap){
         User user = new User();
         user.setNombre(requestMap.get("nombre"));
-        user.setNumeroDeContacto(requestMap.get("numeroDeContacto"));
+        user.setNumero_de_contacto(requestMap.get("numero_de_contacto"));
         user.setEmail(requestMap.get("email"));
-        user.setPassword(requestMap.get("pasword"));
+        user.setPassword(requestMap.get("password"));
         user.setStatus("false");
         user.setRole("user");
         return user;

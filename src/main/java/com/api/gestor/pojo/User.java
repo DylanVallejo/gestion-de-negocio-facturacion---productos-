@@ -28,8 +28,8 @@ public class User {
     @Column(name = "nombre")
     private String nombre;
 
-    @Column(name = "numeroDeContacto")
-    private String numeroDeContacto;
+    @Column(name = "numero_de_contacto")
+    private String numero_de_contacto;
 
     @Column(name = "email")
     private String email;
