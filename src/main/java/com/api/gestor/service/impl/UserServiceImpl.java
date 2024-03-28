@@ -3,12 +3,18 @@ package com.api.gestor.service.impl;
 import com.api.gestor.constantes.FacturaConstantes;
 import com.api.gestor.dao.UserDAO;
 import com.api.gestor.pojo.User;
+import com.api.gestor.security.CustomerDetailsService;
+import com.api.gestor.security.jwt.JwtUtil;
 import com.api.gestor.service.UserService;
 import com.api.gestor.util.FacturaUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -22,6 +28,18 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserDAO userDAO;
+
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private CustomerDetailsService customerDetailsService;
+
+    @Autowired
+    private JwtUtil jwtUtil;
+
+
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
         log.info("registro interno de un usuario {}", requestMap);
@@ -43,6 +61,71 @@ public class UserServiceImpl implements UserService {
         }
         return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+//    @Override
+//    public ResponseEntity<String> login(Map<String, String> requestMap) {
+//        log.info("adentro del login {}");
+//        Authentication authentication;
+////aqui entra al error
+//        try{
+//            authentication = authenticationManager.authenticate(
+//                    new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password"))
+////                        new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password"))
+//            );
+//
+//            if (authentication.isAuthenticated()){
+//                if(customerDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")){
+//                    return new ResponseEntity<String>(
+//                            "{\"token\":\"" + jwtUtil.generateToken(
+//                            customerDetailsService.getUserDetail().getEmail(), customerDetailsService.getUserDetail().getRole())
+//                            + "\"}",HttpStatus.OK);
+//                }
+//
+//            }else{
+//                return new ResponseEntity<String>("{\"mensaje\": " + " " + "Espera la aprobacion del administrador" + "\"}", HttpStatus.BAD_REQUEST);
+//            }
+//
+//        }catch (Exception e){
+//            log.error("{}", e);
+//
+//        }
+//        return new ResponseEntity<String>("{\"mensaje\": " + " " + "Credenciales incorrectas" + "\"}", HttpStatus.BAD_REQUEST);
+//
+////        return null;
+//    }
+
+
+    @Override
+    public ResponseEntity<String> login(Map<String, String> requestMap) {
+        log.info("Dentro de login");
+        try{
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(requestMap.get("email"),requestMap.get("password"))
+            );
+
+            if(authentication.isAuthenticated()){
+                if(customerDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")){
+                    return new ResponseEntity<String>(
+                            "{\"token\":\"" +
+                                    jwtUtil.generateToken(customerDetailsService.getUserDetail().getEmail(),
+                                            customerDetailsService.getUserDetail().getRole()) + "\"}",
+                            HttpStatus.OK);
+                }
+                else{
+                    return new ResponseEntity<String>("{\"mensaje\":\""+" Espera la aprobación del administrador "+"\"}",HttpStatus.BAD_REQUEST);
+                }
+            }
+        }catch (Exception exception){
+            log.error("{}",exception);
+        }
+        return new ResponseEntity<String>("{\"mensaje\":\""+" Credenciales incorrectas "+"\"}",HttpStatus.BAD_REQUEST);
+    }
+
+
+
+
+
+
 
 
     private boolean validateSignUpMap(Map<String, String> requestMap){

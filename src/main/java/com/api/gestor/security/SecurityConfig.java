@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -71,7 +72,8 @@ public class SecurityConfig {
         httpSecurity
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> {
-                    request.requestMatchers("/user/login","/user/signup","/user/forgotPassword")
+                    request.requestMatchers("/api/v1/user/login","/api/v1/user/signUp","/api/v1/user/forgotPassword")
+//                            .hasAnyRole("user", "admin").requestMatchers("/user/login","/user/signup","/user/forgotPassword")
                             .permitAll()
                             .anyRequest()
                             .authenticated();
@@ -80,7 +82,6 @@ public class SecurityConfig {
         httpSecurity.addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
-
 
 
 
