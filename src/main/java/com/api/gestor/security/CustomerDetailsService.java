@@ -23,6 +23,8 @@ public class CustomerDetailsService implements UserDetailsService {
 //    @Autowired
     private User userDetail;
 
+
+// todo   porque loadUserByUsername si es email!!!!!!
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.info("Dentro de loadUserByUsername {}" , username);

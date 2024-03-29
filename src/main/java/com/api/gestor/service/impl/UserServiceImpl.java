@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -38,6 +39,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @Autowired
+    private  PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -145,7 +149,8 @@ public class UserServiceImpl implements UserService {
         user.setNombre(requestMap.get("nombre"));
         user.setNumero_de_contacto(requestMap.get("numero_de_contacto"));
         user.setEmail(requestMap.get("email"));
-        user.setPassword(requestMap.get("password"));
+/*        se debe encriptar el password al guardarlo en base los usuarios enteriores sin encriptar haran que salte la excepion credenciales incorrectas */
+        user.setPassword(passwordEncoder.encode(requestMap.get("password")));
         user.setStatus("false");
         user.setRole("user");
         return user;
