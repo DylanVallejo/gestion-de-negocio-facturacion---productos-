@@ -30,7 +30,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserDAO userDAO;
 
-
     @Autowired
     private AuthenticationManager authenticationManager;
 
@@ -66,39 +65,6 @@ public class UserServiceImpl implements UserService {
         return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-//    @Override
-//    public ResponseEntity<String> login(Map<String, String> requestMap) {
-//        log.info("adentro del login {}");
-//        Authentication authentication;
-////aqui entra al error
-//        try{
-//            authentication = authenticationManager.authenticate(
-//                    new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password"))
-////                        new UsernamePasswordAuthenticationToken(requestMap.get("email"), requestMap.get("password"))
-//            );
-//
-//            if (authentication.isAuthenticated()){
-//                if(customerDetailsService.getUserDetail().getStatus().equalsIgnoreCase("true")){
-//                    return new ResponseEntity<String>(
-//                            "{\"token\":\"" + jwtUtil.generateToken(
-//                            customerDetailsService.getUserDetail().getEmail(), customerDetailsService.getUserDetail().getRole())
-//                            + "\"}",HttpStatus.OK);
-//                }
-//
-//            }else{
-//                return new ResponseEntity<String>("{\"mensaje\": " + " " + "Espera la aprobacion del administrador" + "\"}", HttpStatus.BAD_REQUEST);
-//            }
-//
-//        }catch (Exception e){
-//            log.error("{}", e);
-//
-//        }
-//        return new ResponseEntity<String>("{\"mensaje\": " + " " + "Credenciales incorrectas" + "\"}", HttpStatus.BAD_REQUEST);
-//
-////        return null;
-//    }
-
-
     @Override
     public ResponseEntity<String> login(Map<String, String> requestMap) {
         log.info("Dentro de login");
@@ -125,11 +91,14 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<String>("{\"mensaje\":\""+" Credenciales incorrectas "+"\"}",HttpStatus.BAD_REQUEST);
     }
 
-
-
-
-
-
+//    @Override
+//    public ResponseEntity<User> findUsrByEmail(User user) {
+//        User actualUser = userDAO.findByEmail(user.getEmail());
+//        User updateUser = new User();
+//
+//
+//        return null;
+//    }
 
 
     private boolean validateSignUpMap(Map<String, String> requestMap){
@@ -155,6 +124,5 @@ public class UserServiceImpl implements UserService {
         user.setRole("user");
         return user;
     }
-
 
 }

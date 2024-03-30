@@ -22,18 +22,9 @@ import org.springframework.web.cors.CorsConfiguration;
 @EnableWebSecurity
 public class SecurityConfig {
 
-//    @Autowired
-//    private CustomerDetailsService customerDetailsService;
-
     @Autowired
     private JwtFilter jwtFilter;
 
-
-//deprecado
-//    @Bean
-//    public PasswordEncoder passwordEncoder(){
-//        return NoOpPasswordEncoder.getInstance();
-//    }
     @Bean
     public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
@@ -43,28 +34,6 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception{
         return authenticationConfiguration.getAuthenticationManager();
     }
-
-    /*
-    este codigo esta deprecado
-    @Bean
-    protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
-        httpSecurity.cors().configurationSource(request -> new CorsConfiguration().applyPermitDefaultValues())
-                .and()
-                .csrf().disable()
-                .authorizeHttpRequests()
-                .requestMatchers(
-                        "/user/login", "/user/signUp", "user/forgotPassword"
-                )
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .and().exceptionHandling()
-                .and().sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        httpSecurity.addFilter(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-        return httpSecurity.build();
-
-    } */
 
 //metodo actual revisar
     @Bean
@@ -82,8 +51,5 @@ public class SecurityConfig {
         httpSecurity.addFilterBefore(jwtFilter,UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }
-
-
-
 
 }

@@ -19,16 +19,12 @@ import java.util.function.Function;
 
 @Service
 public class JwtUtil {
-//deprecado
-//    private String secret = "springboot";
     private Key secret;
-
     /*
         Este método es anotado con @PostConstruct, lo que significa que se ejecutará después de que la
         instancia de la clase haya sido construida y todas las dependencias hayan sido inyectadas.
         En este método, se inicializa la clave secreta que se utilizará para firmar y verificar los
         tokens JWT. Se genera una clave aleatoria utilizando SecureRandom() y se asigna a la variable secret.
-
         ahora la llave secreta se generara automaticamente mediante los metodos proporcionados
     */
     @PostConstruct
@@ -58,10 +54,6 @@ public class JwtUtil {
 
 //firmamos el token  validamos el token y obtenemos su cuerpo
     public Claims extractAllClaims(String token){
-        /*       deprecado
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-        */
-//        NUEVA FORMA
         return Jwts.parser()
                 .verifyWith(Keys.hmacShaKeyFor(secret.getEncoded()))
                 .build()
@@ -69,13 +61,10 @@ public class JwtUtil {
                 .getPayload();
     }
 
-
 //validamos fecha
-
     private Boolean isTokenExpired(String token){
         return extractExpiration(token).before(new Date());
     }
-
 
     //genera un token
     public String generateToken(String username, String role){
@@ -84,17 +73,7 @@ public class JwtUtil {
         return createToken(claims, username);
     }
 
-
-//    deprecado
     private String createToken(Map<String, Object> claims, String subject){
-        /*
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 100 * 60 *60 * 10))
-                .signWith(SignatureAlgorithm.HS256, secret).compact();
-         */
         return Jwts.builder()
                 .claims(claims)
                 .subject(subject)
@@ -108,8 +87,5 @@ public class JwtUtil {
         final String username = extractUserName(token);
         return (username.equals(userDetails.getUsername()) && !isTokenExpired((token)));
     }
-
-
-
 
 }
