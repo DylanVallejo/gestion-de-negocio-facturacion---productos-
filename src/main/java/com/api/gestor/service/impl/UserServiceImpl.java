@@ -4,9 +4,11 @@ import com.api.gestor.constantes.FacturaConstantes;
 import com.api.gestor.dao.UserDAO;
 import com.api.gestor.pojo.User;
 import com.api.gestor.security.CustomerDetailsService;
+import com.api.gestor.security.jwt.JwtFilter;
 import com.api.gestor.security.jwt.JwtUtil;
 import com.api.gestor.service.UserService;
 import com.api.gestor.util.FacturaUtils;
+import com.api.gestor.wrapper.UserWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,6 +46,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private  PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtFilter jwtFilter;
 
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
@@ -91,15 +97,20 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity<String>("{\"mensaje\":\""+" Credenciales incorrectas "+"\"}",HttpStatus.BAD_REQUEST);
     }
 
-//    @Override
-//    public ResponseEntity<User> findUsrByEmail(User user) {
-//        User actualUser = userDAO.findByEmail(user.getEmail());
-//        User updateUser = new User();
-//
-//
-//        return null;
-//    }
+    @Override
+    public ResponseEntity<List<UserWrapper>> getAllUsers() {
 
+        try {
+            if(jwtFilter.isAdmin()){
+                return new ResponseEntity<>(userDAO.getAllUsers(), HttpStatus.OK);
+            }else{
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
+            }
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
     private boolean validateSignUpMap(Map<String, String> requestMap){
         if (
