@@ -52,6 +52,16 @@ public class UserController {
         return new ResponseEntity<List<UserWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<String> updateUser(@RequestBody(required = true) Map<String, String> requestMap){
+
+        try{
+            return userService.updateUser(requestMap);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 
 }
