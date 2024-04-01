@@ -14,6 +14,8 @@ import java.io.Serializable;
 @NamedQuery(name = "User.findByEmail", query = "select u from User u where u.email=:email")
 @NamedQuery(name= "User.getAllUsers", query = "select new com.api.gestor.wrapper.UserWrapper(u.id,u.nombre, u.email, u.numero_de_contacto, u.status) from User u where u.role='user'")
 @NamedQuery(name = "User.updateStatus", query = "update User u set u.status= :status where u.id= :id ")
+//@NamedQuery(name = "User.getAllAdmins", query = "select new com.api.gestor.wrapper.UserWrapper(u.id,u.nombre, u.email, u.numero_de_contacto, u.status) from User u where u.role='admin'")
+@NamedQuery(name = "User.getAllAdmins", query = "select u.email from User u where u.role='admin'")
 
 
 @Data

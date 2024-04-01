@@ -1,6 +1,7 @@
 package com.api.gestor.rest;
 
 import com.api.gestor.constantes.FacturaConstantes;
+import com.api.gestor.pojo.User;
 import com.api.gestor.service.UserService;
 import com.api.gestor.util.FacturaUtils;
 import com.api.gestor.wrapper.UserWrapper;
@@ -51,6 +52,16 @@ public class UserController {
         }
         return new ResponseEntity<List<UserWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+//    @GetMapping("/getAdmins")
+//    public ResponseEntity<List<User>> getAllAdmins(){
+//        try{
+//            return userService.getAllAdmins();
+//        }catch (Exception exception){
+//            exception.printStackTrace();
+//        }
+//        return new ResponseEntity<List<User>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 
     @PutMapping("/update")
     public ResponseEntity<String> updateUser(@RequestBody(required = true) Map<String, String> requestMap){

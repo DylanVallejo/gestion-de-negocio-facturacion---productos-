@@ -20,5 +20,10 @@ public interface UserService {
 
     ResponseEntity<String> updateUser(Map<String, String> requestMap);
 
+//    ResponseEntity<List<UserWrapper>> getAllAdmins();
+
+//    ResponseEntity<List<String>> getAllAdmins();
+
+
 
 }

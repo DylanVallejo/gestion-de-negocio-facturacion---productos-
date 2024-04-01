@@ -7,6 +7,7 @@ import com.api.gestor.security.CustomerDetailsService;
 import com.api.gestor.security.jwt.JwtFilter;
 import com.api.gestor.security.jwt.JwtUtil;
 import com.api.gestor.service.UserService;
+import com.api.gestor.util.EmailUtils;
 import com.api.gestor.util.FacturaUtils;
 import com.api.gestor.wrapper.UserWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JwtFilter jwtFilter;
+
+    @Autowired
+    private EmailUtils emailUtils;
 
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
@@ -116,6 +120,7 @@ public class UserServiceImpl implements UserService {
                 Optional<User> optionalUser = userDAO.findById(Integer.parseInt(requestMap.get("id")));
                 if(!optionalUser.isEmpty()){
                     userDAO.updateStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
+                    enviarCorreoAdministradores(requestMap.get("status"), optionalUser.get().getEmail(), userDAO.getAllAdmins());
                     return FacturaUtils.getResponseEntity("Status del usuario actualizado", HttpStatus.OK);
                 }else {
                     FacturaUtils.getResponseEntity("El usuario no existe", HttpStatus.NOT_FOUND);
@@ -129,6 +134,30 @@ public class UserServiceImpl implements UserService {
 
         }
         return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+//    @Override
+//    public ResponseEntity<List<User>> getAllAdmins() {
+//            try{
+//                if(jwtFilter.isAdmin()){
+//                    return new ResponseEntity<>(userDAO.getAllAdmins(), HttpStatus.OK);
+//                }else{
+//                    return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
+//                }
+//            }catch (Exception exception){
+//                exception.printStackTrace();
+//            }
+//        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
+
+    private void enviarCorreoAdministradores(String status, String user, List<String> allAdmins){
+        allAdmins.remove(jwtFilter.getCurrentUser());
+        if (status != null && status.equalsIgnoreCase("true")){
+            emailUtils.sendSimpleMessage(jwtFilter.getCurrentUser(), "Cuenta aprobada", "USUARIO : "+ user + "\n es aprobado por  \nADMIN :"+jwtFilter.getCurrentUser(), allAdmins );
+        }else{
+            emailUtils.sendSimpleMessage(jwtFilter.getCurrentUser(), "Cuenta no aprobada", "USUARIO : "+ user + "\n es no aprobado por  \nADMIN :"+jwtFilter.getCurrentUser(), allAdmins );
+        }
+
     }
 
     private boolean validateSignUpMap(Map<String, String> requestMap){

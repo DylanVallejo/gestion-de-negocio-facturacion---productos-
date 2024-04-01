@@ -18,6 +18,9 @@ public interface UserDAO extends JpaRepository<User, Integer> {
     List<UserWrapper> getAllUsers();
 
 
+    List<String> getAllAdmins();
+
+
     @Transactional
     @Modifying //indica que seran operaciones insert update delete no de tipo get
     Integer updateStatus(@Param("status") String status, @Param("id")Integer id);
