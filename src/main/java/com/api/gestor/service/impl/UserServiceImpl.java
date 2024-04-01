@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -129,6 +130,37 @@ public class UserServiceImpl implements UserService {
             }else {
                 FacturaUtils.getResponseEntity(FacturaConstantes.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
             }
+        }catch (Exception exception){
+            exception.printStackTrace();
+
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> checkToken() {
+        return FacturaUtils.getResponseEntity("true", HttpStatus.OK);
+    }
+
+
+// explicar la falla y la correccion
+    @Override
+    public ResponseEntity<String> newPassword(Map<String, String> requestMap) {
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        try{
+            User user = userDAO.findByEmail(jwtFilter.getCurrentUser());
+            if (!user.equals(null)){
+                if (encoder.matches(requestMap.get("oldPassword"), user.getPassword())){
+/*                    esto trata de comaprar el password codificado contra el no codificado por lo que no pasa se instancia la clase
+                    BCryptPasswordEncoder que posee el metodo matches que recibe el password directo y lo compara contra el encriptado */
+//                if(encoder.user.getPassword().equals(encoder.encode(requestMap.get("oldPassword")))){
+                    user.setPassword(encoder.encode(requestMap.get("newPassword")));
+                    userDAO.save(user);
+                    return FacturaUtils.getResponseEntity("Contraseña actualizada con exito", HttpStatus.OK);
+                }
+                return FacturaUtils.getResponseEntity("Contraseña incorrecta", HttpStatus.BAD_REQUEST);
+            }
+            return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.BAD_REQUEST);
         }catch (Exception exception){
             exception.printStackTrace();
 

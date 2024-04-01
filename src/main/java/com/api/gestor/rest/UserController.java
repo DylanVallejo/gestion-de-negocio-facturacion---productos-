@@ -53,6 +53,30 @@ public class UserController {
         return new ResponseEntity<List<UserWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/checkToken")
+    public ResponseEntity<String> validarToken(){
+        try{
+            return userService.checkToken();
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/newPassword")
+    public ResponseEntity<String> cambiarPassword(@RequestBody Map<String, String> requestMap){
+        try{
+            return userService.newPassword(requestMap);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
+
 //    @GetMapping("/getAdmins")
 //    public ResponseEntity<List<User>> getAllAdmins(){
 //        try{
