@@ -24,6 +24,8 @@ public interface UserService {
 
     ResponseEntity<String> newPassword(Map<String,String> requestMap);
 
+    ResponseEntity<String> recuperarPassword(Map<String,String> requestMap);
+
 //    ResponseEntity<List<UserWrapper>> getAllAdmins();
 
 //    ResponseEntity<List<String>> getAllAdmins();

@@ -98,5 +98,15 @@ public class UserController {
         return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @PostMapping("/forgotPassword")
+    public ResponseEntity<String> recuperarPassword(@RequestBody Map<String, String> requestMap){
+        try{
+            return userService.recuperarPassword(requestMap);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
 }

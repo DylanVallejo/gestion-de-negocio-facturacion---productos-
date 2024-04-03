@@ -7,11 +7,14 @@ import com.api.gestor.security.CustomerDetailsService;
 import com.api.gestor.security.jwt.JwtFilter;
 import com.api.gestor.security.jwt.JwtUtil;
 import com.api.gestor.service.UserService;
+import com.api.gestor.util.ClavesTemporales;
 import com.api.gestor.util.EmailUtils;
 import com.api.gestor.util.FacturaUtils;
 import com.api.gestor.wrapper.UserWrapper;
+import com.google.common.base.Strings;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +25,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.security.Key;
+import java.security.SecureRandom;
 import java.util.*;
 
 
@@ -50,6 +55,11 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private EmailUtils emailUtils;
+
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+    @Autowired
+    private ClavesTemporales clavesTemporales;
 
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
@@ -146,7 +156,7 @@ public class UserServiceImpl implements UserService {
 // explicar la falla y la correccion
     @Override
     public ResponseEntity<String> newPassword(Map<String, String> requestMap) {
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
         try{
             User user = userDAO.findByEmail(jwtFilter.getCurrentUser());
             if (!user.equals(null)){
@@ -164,6 +174,40 @@ public class UserServiceImpl implements UserService {
         }catch (Exception exception){
             exception.printStackTrace();
 
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> recuperarPassword(Map<String, String> requestMap) {
+        try{
+            User user = userDAO.findByEmail(requestMap.get("email"));
+
+            if(!Objects.isNull(user) && !Strings.isNullOrEmpty(user.getEmail())){
+//                como puedo extraer el password o el flujo es generar un token extraer to do y enviar el password del usuario?
+                /*
+                *   se genera la solicitud
+                *  crea uan nueva password
+                *  se envia la nueva password
+                *  se hashea la contraseña
+                *  se almacena la nueva contraseña
+                *
+                * (se podria incluir el campo contraseña_temporal)
+                * (la nueva password reemplazara a la antigua)
+                * (se podria adicionar un campo de validacion de seguridad en el cual deba responder una pregunta para el envio de la nueva password)
+                *
+                *   OBTENER LA CLAVE DE LA BASE DE DATOS NO ES FACTIBLE BYCRYPT ESTA HECHO PARA NO DESENCRIPTAR LAS CLAVES Y ADEMAS DE ESTO
+                *   ROMPE LAS NORMAS DE ALAMCENAMIENTO DE CREDENCIALES SI DE ALGUNA FORMA SE ES OBTENIDA Y ENVIADA POR CORREO
+                * */
+                String tempPassword = clavesTemporales.generateRandomPassword(12);
+                emailUtils.recuperarPasswordViaEmail(user.getEmail(), "Credenciales temporales del sistema gestor de facturas, por favor cambiar la contraseña inmediatamente por motivos de seguridad", tempPassword);
+                user.setPassword(encoder.encode(tempPassword));
+                userDAO.save(user);
+//                emailUtils.recuperarPasswordViaEmail(user.getEmail(), "Credenciales del sistema gestor de facturas",user.getPassword());
+            }
+            return FacturaUtils.getResponseEntity("Verifica tus credenciales temporales en tu correo electronico: " + user.getEmail(), HttpStatus.OK);
+        }catch (Exception exception){
+            exception.printStackTrace();
         }
         return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
