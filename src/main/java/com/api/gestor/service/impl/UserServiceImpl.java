@@ -12,8 +12,6 @@ import com.api.gestor.util.EmailUtils;
 import com.api.gestor.util.FacturaUtils;
 import com.api.gestor.wrapper.UserWrapper;
 import com.google.common.base.Strings;
-import io.jsonwebtoken.security.Keys;
-import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,8 +23,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.security.Key;
-import java.security.SecureRandom;
 import java.util.*;
 
 

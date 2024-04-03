@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping(path = "/api/v1/user")
+@CrossOrigin(origins = "*")
 public class UserController {
 
     @Autowired
