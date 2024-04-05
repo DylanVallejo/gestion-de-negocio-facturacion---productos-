@@ -45,4 +45,15 @@ public class CategoriaController {
 
     }
 
+//    tambien se puede actualizar con el metodo post
+    @PostMapping("/update")
+    public ResponseEntity<String> actualizarCategoria(@RequestBody(required = true) Map<String, String> requestMap){
+        try{
+            return  categoriaService.actualizarCategoria(requestMap,Boolean.parseBoolean(requestMap.get("validateId")));
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

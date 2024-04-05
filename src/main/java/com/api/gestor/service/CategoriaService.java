@@ -15,5 +15,8 @@ public interface CategoriaService {
 
     ResponseEntity<List<Categoria>> getAllCategorias(String valueFilter);
 
+    ResponseEntity<String> actualizarCategoria(Map<String,String> requestMap, Boolean validateId);
+
+    Categoria obtenerCategoriaAntigua(String id);
 
 }

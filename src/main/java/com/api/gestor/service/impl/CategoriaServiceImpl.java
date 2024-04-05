@@ -14,10 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -70,6 +72,36 @@ public class CategoriaServiceImpl implements CategoriaService {
             exception.printStackTrace();
         }
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> actualizarCategoria(Map<String, String> requestMap, Boolean validateId) {
+        log.info("Actualizando una categoria {}", requestMap);
+
+        try{
+
+            if (jwtFilter.isAdmin() ){
+                Categoria categoriaAntigua = obtenerCategoriaAntigua(requestMap.get("id"));
+                String nombreCategoria = categoriaAntigua.getNombre();
+                Categoria categoriaActualizada = new Categoria();
+                if (validarCategoria(requestMap, validateId)){
+                    categoriaActualizada = categoriaDAO.save(getCategoriaFromMap(requestMap, validateId));
+                }
+                return FacturaUtils.getResponseEntity("Categoria " +   nombreCategoria + " actualizada a: " + categoriaActualizada.getNombre()  + " con exito." , HttpStatus.OK );
+            } else {
+                return FacturaUtils.getResponseEntity(FacturaConstantes.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+            }
+        }catch (Exception exception) {
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<String>(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    @Transactional( readOnly = true)
+    public Categoria obtenerCategoriaAntigua(String id) {
+        Optional<Categoria> categoriaAntiguaOptional = categoriaDAO.findById(Integer.parseInt(id));
+        return categoriaAntiguaOptional.orElse(null);
     }
 
     private boolean validarCategoria(Map<String, String> requestMap, Boolean validateId){
