@@ -23,4 +23,13 @@ public class Producto {
     @JoinColumn(name="categoria_fk", nullable = false)
     private Categoria categoria;
 
+    @Column(name = "descripcion")
+    private String descripcion;
+
+    @Column(name = "precio")
+    private Integer precio;
+
+    @Column(name ="status")
+    private String status;
+
 }
