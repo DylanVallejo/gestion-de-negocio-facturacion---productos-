@@ -5,6 +5,9 @@ import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+//@NamedQuery(name = "Producto.getAllProducts", query = "select new com.api.gestor.wrapper.ProductoWrapper(p.id, p.nombre, p.descripcion, p.precio, p.status, p.categoria.id, p.categoria.nombre) from Producto p where categoria.id ='1' ");
+@NamedQuery(name = "Producto.getAllProducts", query = "select  new com.api.gestor.wrapper.ProductoWrapper(p.id, p.nombre,p.descripcion, p.precio, p.status, p.categoria.id, p.categoria.nombre ) from Producto p")
+
 @Data
 @Entity
 @DynamicInsert
@@ -31,5 +34,7 @@ public class Producto {
 
     @Column(name ="status")
     private String status;
+
+//    porducto deberia tener la columna stock y tambien deberia poder crear un producto con el mismo nombre
 
 }
