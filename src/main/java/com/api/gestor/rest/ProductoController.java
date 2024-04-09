@@ -5,7 +5,6 @@ import com.api.gestor.constantes.FacturaConstantes;
 import com.api.gestor.service.ProductoService;
 import com.api.gestor.util.FacturaUtils;
 import com.api.gestor.wrapper.ProductoWrapper;
-import com.api.gestor.wrapper.UserWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +40,36 @@ public class ProductoController {
             exception.printStackTrace();
         }
         return new ResponseEntity<List<ProductoWrapper>>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/update")
+    ResponseEntity<String> actualizarProducto(@RequestBody Map<String, String> requestMap){
+        try {
+            return productoService.actualizarProducto(requestMap);
+        } catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PatchMapping("/updatePut/{id}")
+    ResponseEntity<String> actualizarProductoParcial(@PathVariable("id") Integer id ,@RequestBody ProductoWrapper productoWrapper){
+        try {
+            return productoService.actualizarProductoParcial(productoWrapper,id);
+        } catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    ResponseEntity<String> eliminarProducto(@PathVariable("id") Integer id){
+        try {
+            return productoService.eliminarProducto(id);
+        } catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }
