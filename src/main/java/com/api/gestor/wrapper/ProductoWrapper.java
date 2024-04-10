@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,5 +20,6 @@ public class ProductoWrapper {
     private String status;
     private Integer categoria_id;
     private String categoria_nombre;
+    private Date fechaCreacion;
 
 }

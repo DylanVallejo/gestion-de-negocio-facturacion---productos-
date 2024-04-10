@@ -14,10 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ProductoServiceImpl  implements ProductoService {
@@ -132,6 +129,9 @@ public class ProductoServiceImpl  implements ProductoService {
         if (productoWrapperBody.getPrecio() != null){
             validarProducto.setPrecio(productoWrapperBody.getPrecio());
         }
+        if (productoWrapperBody.getFechaCreacion() != null){
+            validarProducto.setFechaCreacion(productoWrapperBody.getFechaCreacion());
+        }
 
         return validarProducto;
 
@@ -152,6 +152,62 @@ public class ProductoServiceImpl  implements ProductoService {
         return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<String> updateStatus(ProductoWrapper status, Integer id) {
+        try{
+            if (jwtFilter.isAdmin()){
+                Optional<Producto> productoOptional = productoDao.findById(id);
+                if (productoOptional.isPresent()){
+                    productoDao.updateStatus(status.getStatus(),id);
+                }
+                return FacturaUtils.getResponseEntity("El status del producto con el id: " + id + " ha sido actualizado." , HttpStatus.OK);
+            }
+            return FacturaUtils.getResponseEntity(FacturaConstantes.UNAUTHORIZED_ACCESS, HttpStatus.UNAUTHORIZED);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<ProductoWrapper> buscarProductoPorNombre(String nombreProducto) {
+        try{
+            if (jwtFilter.isAdmin()){
+                ProductoWrapper productoBase = productoDao.getProductoPorNombre(nombreProducto);
+                if(productoBase != null){
+                    return new ResponseEntity<>(productoDao.getProductoPorNombre(nombreProducto), HttpStatus.OK);
+                }else {
+                    return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+                }
+            }
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<ProductoWrapper>> obtenerPorOrdenDeFecha(String ordenar) {
+        try{
+            if(jwtFilter.isAdmin()){
+                if(ordenar.equalsIgnoreCase("asc")){
+                    List<ProductoWrapper> productosAsc = productoDao.getProductosAsc();
+                    return new ResponseEntity<>(productosAsc, HttpStatus.OK);
+                }else if (ordenar.equalsIgnoreCase("desc")){
+                    List<ProductoWrapper> productosDesc = productoDao.getProductosDesc();
+                    return new ResponseEntity<>(productosDesc, HttpStatus.OK);
+                }
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            }else{
+                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
+            }
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     private Producto getProductoFromMap(Map<String , String> requestMap, boolean existe){
         Categoria categoria = new Categoria();
         categoria.setId(Integer.parseInt(requestMap.get("categoriaId")));
@@ -168,6 +224,7 @@ public class ProductoServiceImpl  implements ProductoService {
         producto.setNombre(requestMap.get("nombre"));
         producto.setDescripcion(requestMap.get("descripcion"));
         producto.setPrecio(Integer.parseInt(requestMap.get("precio")));
+        producto.setFechaCreacion(new Date());
         return producto;
 
     }

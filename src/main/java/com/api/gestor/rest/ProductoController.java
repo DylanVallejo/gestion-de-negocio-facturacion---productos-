@@ -72,4 +72,36 @@ public class ProductoController {
         return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @PatchMapping("/status/{id}")
+    ResponseEntity<String> updateStatus(@RequestBody ProductoWrapper status , @PathVariable("id") Integer id){
+        try {
+            return productoService.updateStatus(status, id);
+        } catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+
+    }
+
+    @GetMapping("/nombre")
+    ResponseEntity<ProductoWrapper> buscarProductoPorNombre(@RequestParam String nombreProducto){
+        try {
+            return productoService.buscarProductoPorNombre(nombreProducto);
+        } catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @GetMapping("/list/orden")
+    ResponseEntity<List<ProductoWrapper>> obtenerPorOrdenDeFecha(@RequestParam String orden) {
+        try{
+            return productoService.obtenerPorOrdenDeFecha(orden);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
 }

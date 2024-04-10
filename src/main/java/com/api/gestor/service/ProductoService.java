@@ -19,4 +19,10 @@ public interface ProductoService {
 
     ResponseEntity<String> eliminarProducto(Integer id);
 
+    ResponseEntity<String> updateStatus(ProductoWrapper status, Integer id);
+
+    ResponseEntity<ProductoWrapper> buscarProductoPorNombre(String nombreProducto);
+
+    ResponseEntity<List<ProductoWrapper>> obtenerPorOrdenDeFecha(String ordenar);
+
 }
