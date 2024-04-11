@@ -22,4 +22,7 @@ public interface ProductoDao extends JpaRepository<Producto, Integer> {
     List<ProductoWrapper>   getProductosAsc();
 
     List<ProductoWrapper>   getProductosDesc();
+
+    List<ProductoWrapper> getProductoByCategoria(@Param("id") Integer id);
+
 }

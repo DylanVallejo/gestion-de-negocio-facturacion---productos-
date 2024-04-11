@@ -172,15 +172,12 @@ public class ProductoServiceImpl  implements ProductoService {
     @Override
     public ResponseEntity<ProductoWrapper> buscarProductoPorNombre(String nombreProducto) {
         try{
-            if (jwtFilter.isAdmin()){
-                ProductoWrapper productoBase = productoDao.getProductoPorNombre(nombreProducto);
-                if(productoBase != null){
-                    return new ResponseEntity<>(productoDao.getProductoPorNombre(nombreProducto), HttpStatus.OK);
-                }else {
-                    return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-                }
+            ProductoWrapper productoBase = productoDao.getProductoPorNombre(nombreProducto);
+            if(productoBase != null){
+                return new ResponseEntity<>(productoDao.getProductoPorNombre(nombreProducto), HttpStatus.OK);
+            }else {
+                return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
             }
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }catch (Exception exception){
             exception.printStackTrace();
         }
@@ -190,7 +187,6 @@ public class ProductoServiceImpl  implements ProductoService {
     @Override
     public ResponseEntity<List<ProductoWrapper>> obtenerPorOrdenDeFecha(String ordenar) {
         try{
-            if(jwtFilter.isAdmin()){
                 if(ordenar.equalsIgnoreCase("asc")){
                     List<ProductoWrapper> productosAsc = productoDao.getProductosAsc();
                     return new ResponseEntity<>(productosAsc, HttpStatus.OK);
@@ -199,9 +195,16 @@ public class ProductoServiceImpl  implements ProductoService {
                     return new ResponseEntity<>(productosDesc, HttpStatus.OK);
                 }
                 return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
-            }else{
-                return new ResponseEntity<>(new ArrayList<>(), HttpStatus.UNAUTHORIZED);
-            }
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<ProductoWrapper>> getProductoByCategoria(Integer id) {
+        try{
+            return new ResponseEntity<>(productoDao.getProductoByCategoria(id), HttpStatus.OK);
         }catch (Exception exception){
             exception.printStackTrace();
         }

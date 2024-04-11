@@ -104,4 +104,15 @@ public class ProductoController {
     }
 
 
+    @GetMapping("/productosPorCategoria/{id}")
+    public ResponseEntity<List<ProductoWrapper>> getByCategoria(@PathVariable("id") Integer id){
+        try {
+            return productoService.getProductoByCategoria(id);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
 }

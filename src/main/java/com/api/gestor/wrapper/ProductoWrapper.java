@@ -22,4 +22,8 @@ public class ProductoWrapper {
     private String categoria_nombre;
     private Date fechaCreacion;
 
+    public ProductoWrapper(Integer id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
 }

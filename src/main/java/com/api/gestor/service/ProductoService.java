@@ -25,4 +25,6 @@ public interface ProductoService {
 
     ResponseEntity<List<ProductoWrapper>> obtenerPorOrdenDeFecha(String ordenar);
 
+    ResponseEntity<List<ProductoWrapper>> getProductoByCategoria(Integer id);
+
 }
