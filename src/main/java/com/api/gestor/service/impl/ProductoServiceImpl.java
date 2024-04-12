@@ -211,6 +211,16 @@ public class ProductoServiceImpl  implements ProductoService {
         return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<ProductoWrapper> getProductoById(Integer id) {
+        try{
+            return new ResponseEntity<>(productoDao.getProductoById(id), HttpStatus.OK);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(new ProductoWrapper(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
     private Producto getProductoFromMap(Map<String , String> requestMap, boolean existe){
         Categoria categoria = new Categoria();
         categoria.setId(Integer.parseInt(requestMap.get("categoriaId")));

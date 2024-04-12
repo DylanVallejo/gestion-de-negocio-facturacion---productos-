@@ -13,6 +13,7 @@ import java.util.Date;
 @NamedQuery(name = "Producto.getProductosAsc", query = "select new com.api.gestor.wrapper.ProductoWrapper( p.id, p.nombre,p.descripcion, p.precio, p.status, p.categoria.id, p.categoria.nombre, p.fechaCreacion)from Producto p order by p.fechaCreacion ASC ")
 @NamedQuery(name = "Producto.getProductosDesc", query = "select new com.api.gestor.wrapper.ProductoWrapper( p.id, p.nombre,p.descripcion, p.precio, p.status, p.categoria.id, p.categoria.nombre, p.fechaCreacion)from Producto p order by p.fechaCreacion DESC ")
 @NamedQuery(name = "Producto.getProductoByCategoria", query = "select new com.api.gestor.wrapper.ProductoWrapper(p.id, p.nombre) from Producto p where p.categoria.id = :id and p.status = 'true'")
+@NamedQuery(name = "Producto.getProductoById", query = "select new com.api.gestor.wrapper.ProductoWrapper(p.id, p.nombre,p.descripcion, p.precio) from Producto p where p.id = :id")
 
 @Data
 @Entity

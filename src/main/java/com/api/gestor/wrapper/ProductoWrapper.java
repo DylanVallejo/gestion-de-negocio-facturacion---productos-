@@ -25,5 +25,14 @@ public class ProductoWrapper {
     public ProductoWrapper(Integer id, String nombre) {
         this.id = id;
         this.nombre = nombre;
+//        this.descripcion = descripcion;
     }
+
+    public ProductoWrapper(Integer id, String nombre, String descripcion, Integer precio) {
+        this.id = id;
+        this.nombre = nombre;
+        this.descripcion = descripcion;
+        this.precio = precio;
+    }
+
 }

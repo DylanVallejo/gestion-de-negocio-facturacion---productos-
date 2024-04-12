@@ -115,4 +115,15 @@ public class ProductoController {
     }
 
 
+    @GetMapping("/listById/{id}")
+    public ResponseEntity<ProductoWrapper> getProductoById(@PathVariable("id") Integer id){
+        try {
+            return productoService.getProductoById(id);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return new ResponseEntity<>(new ProductoWrapper(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+
 }
