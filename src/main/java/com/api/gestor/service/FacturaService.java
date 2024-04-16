@@ -9,9 +9,10 @@ import java.util.Map;
 
 public interface FacturaService {
 
-    ResponseEntity<String> generateReport(Map<String, Object> requestMap);
-
+    ResponseEntity<String> generateReport(Integer id) throws Exception;
 
     ResponseEntity<List<Factura>> getFacturas();
+
+    ResponseEntity<String> guardarFactura(Map<String, Object> requestMap);
 
 }

@@ -22,10 +22,20 @@ public class FacturaController {
     FacturaService facturaService;
 
 
-    @PostMapping("/generarReporte")
-    ResponseEntity<String> generarReporte(@RequestBody Map<String, Object>requestMap){
+    @PostMapping("/generarReporte/{id}")
+    ResponseEntity<String> generarReporte(@PathVariable("id") Integer id){
         try {
-            return facturaService.generateReport(requestMap);
+            return facturaService.generateReport(id);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @PostMapping("/guardarFactura")
+    ResponseEntity<String> guardarFactura(@RequestBody Map<String, Object> requestBody){
+        try {
+            return facturaService.guardarFactura(requestBody);
         }catch (Exception exception){
             exception.printStackTrace();
         }

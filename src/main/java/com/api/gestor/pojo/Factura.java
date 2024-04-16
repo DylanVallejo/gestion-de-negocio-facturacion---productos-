@@ -1,7 +1,9 @@
 package com.api.gestor.pojo;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
@@ -9,6 +11,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 @NamedQuery(name="Factura.getFacturas", query = " select f from Factura f order by f.id desc")
 @NamedQuery(name="Factura.getFacturasByUserName", query = " select f from Factura f where f.createdBy = :username order by f.id desc")
+@NamedQuery(name = "Factura.getFacturaPorId", query = "select f from Factura f where f.id = :id ")
 
 
 @Data

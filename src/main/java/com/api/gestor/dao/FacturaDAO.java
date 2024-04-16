@@ -15,4 +15,5 @@ public interface FacturaDAO extends JpaRepository<Factura, Integer> {
 
     List<Factura> getFacturasByUserName(@Param("username") String username);
 
+    Factura getFacturaPorId(@Param("id") Integer id);
 }

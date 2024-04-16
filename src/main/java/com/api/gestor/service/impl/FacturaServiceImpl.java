@@ -6,6 +6,9 @@ import com.api.gestor.pojo.Factura;
 import com.api.gestor.security.jwt.JwtFilter;
 import com.api.gestor.service.FacturaService;
 import com.api.gestor.util.FacturaUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
@@ -21,6 +24,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 
@@ -36,72 +40,77 @@ public class FacturaServiceImpl implements FacturaService {
 
 //generando el reporte
     @Override
-    public ResponseEntity<String> generateReport(Map<String, Object> requestMap) {
+    public ResponseEntity<String> generateReport(Integer id) throws Exception {
         log.info("dentro del generador de reportes");
+        Factura facturaPdf = facturaDAO.getFacturaPorId(id);
         try {
-            String fileName;
-            if(validateRequestMap(requestMap)){
-                if (requestMap.containsKey("isGenerated") && !(Boolean)requestMap.get("isGenerated")){
-                    fileName = (String)  requestMap.get("uuid");
-                }else {
-                    fileName = FacturaUtils.getUUID();
-                    requestMap.put("uuid", fileName);
-                    insertarFactura(requestMap);
-                }
-                String data = "Nombre : " + requestMap.get("nombre") +
-                        "\nNumero de contacto: " + requestMap.get("numeroContacto") +
-                        "\nEmail : " + requestMap.get("email") +
-                        "\nMetodo de pago" + requestMap.get("metodoPago");
+            String fileName = "";
+                    fileName = (String)  facturaPdf.getUuid();
 
-                Document document = new Document();
-                PdfWriter.getInstance(document, new FileOutputStream(FacturaConstantes.STORE_LOCATION+"\\"+fileName+".pdf"));
+            String data = "Nombre : " + facturaPdf.getNombre() +
+                    "\nNumero de contacto: " +  facturaPdf.getNumeroContacto()  +
+                    "\nEmail : " + facturaPdf.getEmail() +
+                    "\nMetodo de pago" + facturaPdf.getMetodoPago();
 
-                document.open();
-                setRectangleInPdf(document);
-                Paragraph paragraphHeader = new Paragraph("Gestion de categorias y productos", getFont("Header"));
-                paragraphHeader.setAlignment(Element.ALIGN_CENTER);
-                paragraphHeader.add(paragraphHeader);
+            Document document = new Document();
+            PdfWriter.getInstance(document, new FileOutputStream(FacturaConstantes.STORE_LOCATION+"\\" + fileName + ".pdf"));
 
-                PdfPTable pdfPTable = new PdfPTable(5);
-                pdfPTable.setWidthPercentage(100);
-                addTableHeader(pdfPTable);
+            document.open();
+            setRectangleInPdf(document);
+            Paragraph paragraphHeader = new Paragraph("Gestion de categorias y productos", getFont("Header"));
+            paragraphHeader.setAlignment(Element.ALIGN_CENTER);
+            paragraphHeader.add(paragraphHeader);
 
-                JSONArray jsonArray = FacturaUtils.getJsonArrayFromString((String) requestMap.get("productoDetalles"));
-                for (int i =0; i< jsonArray.length(); i++){
-                    addRows(pdfPTable, FacturaUtils.getMapFromJson(jsonArray.getString(i)));
-                }
-                document.add(pdfPTable);
+            PdfPTable pdfPTable = new PdfPTable(5);
+            pdfPTable.setWidthPercentage(100);
+            addTableHeader(pdfPTable);
 
-                Paragraph footer = new Paragraph("Total : "+ requestMap.get("total") + "\n" + " Gracias por visitarnos, vuelva pronto", getFont("Data"));
-                document.add(footer);
-
-                document.close();
-
-                return new ResponseEntity<>("{\"uuid\":\""+fileName+"\"}", HttpStatus.OK);
+            JSONArray jsonArray = FacturaUtils.getJsonArrayFromString(facturaPdf.getProductoDetalles());
+            for (int i =0; i< jsonArray.length(); i++){
+                addRows(pdfPTable, FacturaUtils.getMapFromJson(jsonArray.getString(i)));
             }
+            document.add(pdfPTable);
 
-            return FacturaUtils.getResponseEntity("Datos requeridos no encontrados", HttpStatus.BAD_REQUEST);
+            Paragraph footer = new Paragraph("Total : "+ facturaPdf.getTotal() + "\n" + " Gracias por visitarnos, vuelva pronto", getFont("Data"));
+            document.add(footer);
+
+            document.close();
+
+            return new ResponseEntity<>("{\"uuid\":\""+fileName+"\"}", HttpStatus.OK);
+
         }catch (Exception exception){
             exception.printStackTrace();
         }
         return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
-
-        /*
-            en lugar de guardar y generar el reporte
-            dividir la funcionalidad en guardar factura y generar reporte con dos enpoints distintos
-         */
     }
 
     @Override
     public ResponseEntity<List<Factura>> getFacturas() {
         List<Factura> facturas = new ArrayList<>();
-
         if (jwtFilter.isAdmin()){
             facturas = facturaDAO.getFacturas();
         }else {
             facturas = facturaDAO.getFacturasByUserName(jwtFilter.getCurrentUser());
         }
         return new ResponseEntity<>(facturas, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<String> guardarFactura(Map<String, Object> requestMap) {
+//        esto si recibe el objeto completo desde el front
+        try {
+            String fileName;
+            if(validateRequestMap(requestMap)){
+                fileName = FacturaUtils.getUUID();
+                    requestMap.put("uuid", fileName);
+                    insertarFactura(requestMap);
+            }else {
+                return FacturaUtils.getResponseEntity("Datos requeridos no encontrados", HttpStatus.BAD_REQUEST);
+            }
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity("Factura creada con exito", HttpStatus.OK);
     }
 
     // creando filas
@@ -161,8 +170,6 @@ public class FacturaServiceImpl implements FacturaService {
             factura.setProductoDetalles((String) requestMap.get("productoDetalles"));
             factura.setCreatedBy(jwtFilter.getCurrentUser());
             facturaDAO.save(factura);
-
-
         }catch (Exception exception){
             exception.printStackTrace();
         }
