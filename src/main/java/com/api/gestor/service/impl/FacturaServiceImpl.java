@@ -18,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -66,7 +68,7 @@ public class FacturaServiceImpl implements FacturaService {
 
                 JSONArray jsonArray = FacturaUtils.getJsonArrayFromString((String) requestMap.get("productoDetalles"));
                 for (int i =0; i< jsonArray.length(); i++){
-                    addRows(pdfPTable, FacturaUtils.getMapFromJson(jsonArray.toString(i)));
+                    addRows(pdfPTable, FacturaUtils.getMapFromJson(jsonArray.getString(i)));
                 }
                 document.add(pdfPTable);
 
@@ -83,6 +85,23 @@ public class FacturaServiceImpl implements FacturaService {
             exception.printStackTrace();
         }
         return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        /*
+            en lugar de guardar y generar el reporte
+            dividir la funcionalidad en guardar factura y generar reporte con dos enpoints distintos
+         */
+    }
+
+    @Override
+    public ResponseEntity<List<Factura>> getFacturas() {
+        List<Factura> facturas = new ArrayList<>();
+
+        if (jwtFilter.isAdmin()){
+            facturas = facturaDAO.getFacturas();
+        }else {
+            facturas = facturaDAO.getFacturasByUserName(jwtFilter.getCurrentUser());
+        }
+        return new ResponseEntity<>(facturas, HttpStatus.OK);
     }
 
     // creando filas
@@ -92,6 +111,7 @@ public class FacturaServiceImpl implements FacturaService {
         pdfPTable.addCell((String) data.get("categoria"));
         pdfPTable.addCell((String) data.get("cantidad"));
         pdfPTable.addCell(Double.toString( (Double) data.get("precio")) );
+//        calcular el total automaticamente
         pdfPTable.addCell(Double.toString( (Double) data.get("total")) );
 
     }
@@ -152,7 +172,7 @@ public class FacturaServiceImpl implements FacturaService {
 
     //validar datos en factura
     private boolean validateRequestMap(Map<String, Object> requestMap){
-        return requestMap.containsKey("numeroContacto")
+        return requestMap.containsKey("nombre")
                 && requestMap.containsKey("numeroContacto")
                 && requestMap.containsKey("email")
                 && requestMap.containsKey("metodoPago")
@@ -166,7 +186,7 @@ public class FacturaServiceImpl implements FacturaService {
 
     private void addTableHeader(PdfPTable pdfPTable){
         log.info("Dentro del addTableHeader");
-        Stream.of("Nombre", " Categoria", "Precio", "Sub Total")
+        Stream.of("Nombre", " Categoria", "Cantidad" , "Precio", "Sub Total")
                 .forEach(columnTitle->{
 //                    se puede ahcer con jasperreport tambien
                     PdfPCell pdfPCell = new PdfPCell();

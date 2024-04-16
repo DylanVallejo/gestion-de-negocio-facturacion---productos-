@@ -6,6 +6,11 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 
+
+@NamedQuery(name="Factura.getFacturas", query = " select f from Factura f order by f.id desc")
+@NamedQuery(name="Factura.getFacturasByUserName", query = " select f from Factura f where f.createdBy = :username order by f.id desc")
+
+
 @Data
 @Entity
 @DynamicInsert
@@ -36,7 +41,7 @@ public class Factura {
     @Column(name = "total")
     private Integer total;
 
-    @Column(name ="producto_detalles")
+    @Column(name ="producto_detalles", columnDefinition = "json") //columnDefinition le indica que sera un tipo json lo que almacenaremos
     private String productoDetalles;
 
     @Column(name = "created_by")
