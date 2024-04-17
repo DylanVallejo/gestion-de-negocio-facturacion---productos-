@@ -1,6 +1,5 @@
 package com.api.gestor.service;
 
-import com.api.gestor.dao.FacturaDAO;
 import com.api.gestor.pojo.Factura;
 import org.springframework.http.ResponseEntity;
 
@@ -14,5 +13,7 @@ public interface FacturaService {
     ResponseEntity<List<Factura>> getFacturas();
 
     ResponseEntity<String> guardarFactura(Map<String, Object> requestMap);
+
+    ResponseEntity<byte[]> getPdf(Map<String, Object> requestMap);
 
 }

@@ -6,25 +6,22 @@ import com.api.gestor.pojo.Factura;
 import com.api.gestor.security.jwt.JwtFilter;
 import com.api.gestor.service.FacturaService;
 import com.api.gestor.util.FacturaUtils;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.pdfbox.io.IOUtils;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 
@@ -103,7 +100,10 @@ public class FacturaServiceImpl implements FacturaService {
             if(validateRequestMap(requestMap)){
                 fileName = FacturaUtils.getUUID();
                     requestMap.put("uuid", fileName);
-                    insertarFactura(requestMap);
+                    Factura facturaNueva = insertarFactura(requestMap);
+                if (requestMap.containsKey("isGenerated") && !(Boolean)requestMap.get("isGenerated")) {
+                    generateReport(facturaNueva.getId());
+                }
             }else {
                 return FacturaUtils.getResponseEntity("Datos requeridos no encontrados", HttpStatus.BAD_REQUEST);
             }
@@ -111,6 +111,46 @@ public class FacturaServiceImpl implements FacturaService {
             exception.printStackTrace();
         }
         return FacturaUtils.getResponseEntity("Factura creada con exito", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<byte[]> getPdf(Map<String, Object> requestMap) {
+        log.info("adentro de getPdf: requestMap{}", requestMap);
+
+        try {
+            byte[] byteArray = new byte[0];
+//            considero que solo debo mandar el uui del pdf necesitado ya que busco el pdf no generarlo
+            if (!requestMap.containsKey("uuid") ){
+                return new ResponseEntity<>(byteArray, HttpStatus.BAD_REQUEST);
+            }
+            String filePath = FacturaConstantes.STORE_LOCATION+"\\"+"FACTURA-"+(String) requestMap.get("uuid")+".pdf";
+
+            if (FacturaUtils.fileExist(filePath)){
+                byteArray = getByteArray(filePath);
+                return new ResponseEntity<>(byteArray, HttpStatus.OK);
+            }
+//            else{
+//                requestMap.put("isGenerated", false);
+//                guardarFactura(requestMap);
+//                byteArray = getByteArray(filePath);
+//                return new ResponseEntity<>(byteArray,HttpStatus.OK);
+//            }
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return null;
+    }
+
+//    obtener los bytes de un pdf o archivo
+
+    private byte[] getByteArray(String filePath) throws IOException {
+        File initialFile = new File(filePath);
+        InputStream inputStream = new FileInputStream(initialFile);
+        byte[] byteArray = IOUtils.toByteArray(inputStream);
+        inputStream.close();
+        return byteArray;
+
+
     }
 
     // creando filas
@@ -158,7 +198,7 @@ public class FacturaServiceImpl implements FacturaService {
 
     //insertar(crear) una factura y validar que la factura este correcta
 
-    private void insertarFactura(Map<String, Object>requestMap){
+    private Factura insertarFactura(Map<String, Object>requestMap){
         try {
             Factura factura = new Factura();
             factura.setUuid((String) requestMap.get("uuid"));
@@ -169,11 +209,11 @@ public class FacturaServiceImpl implements FacturaService {
             factura.setTotal(Integer.parseInt((String) requestMap.get("total")));
             factura.setProductoDetalles((String) requestMap.get("productoDetalles"));
             factura.setCreatedBy(jwtFilter.getCurrentUser());
-            facturaDAO.save(factura);
+            return facturaDAO.save(factura);
         }catch (Exception exception){
             exception.printStackTrace();
         }
-
+        return null;
     }
 
 
