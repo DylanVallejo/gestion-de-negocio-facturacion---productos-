@@ -62,6 +62,16 @@ public class FacturaController {
         }
         return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+//en lugar de eliminar una factura deberia existir un estado de activa o inactiva
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> borrarFactura(@PathVariable("id") Integer id){
+        try {
+            return facturaService.deleteFactura(id);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 
 
 }

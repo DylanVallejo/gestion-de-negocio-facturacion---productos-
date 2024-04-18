@@ -19,9 +19,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Stream;
 
 
@@ -139,6 +138,21 @@ public class FacturaServiceImpl implements FacturaService {
             exception.printStackTrace();
         }
         return null;
+    }
+
+    @Override
+    public ResponseEntity<String> deleteFactura(Integer id) {
+        try {
+            Optional optional = facturaDAO.findById(id);
+            if (optional.isPresent()){
+                facturaDAO.deleteById(id);
+                return FacturaUtils.getResponseEntity("Factura eliminada", HttpStatus.OK);
+            }
+            return FacturaUtils.getResponseEntity("La factura con el id: "  + id + " no existe.", HttpStatus.OK);
+        }catch (Exception exception){
+            exception.printStackTrace();
+        }
+        return FacturaUtils.getResponseEntity(FacturaConstantes.SOMETHING_WENT_WRONG, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 //    obtener los bytes de un pdf o archivo
